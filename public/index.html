@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue | Intelligent Emergency Triaging</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container nav-content">
+            <a href="#" class="logo">
+                <ion-icon name="pulse"></ion-icon>
+                Medi<span>Queue</span>
+            </a>
+            <div style="display: flex; gap: 1rem;">
+                <a href="#features" style="color: var(--text-secondary); font-size: 0.9rem;">Features</a>
+                <a href="#algorithm" style="color: var(--text-secondary); font-size: 0.9rem;">Algorithm</a>
+                <a href="https://github.com" target="_blank"
+                    style="color: var(--text-secondary); font-size: 0.9rem;">Docs</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div
+                style="color: var(--primary); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;">
+                DAA Project 2026</div>
+            <h1>Smart Triaging for <br><span
+                    style="background: linear-gradient(to right, #3b82f6, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Modern
+                    Healthcare</span></h1>
+            <p>
+                An intelligent emergency room scheduling system powered by Max-Heap Priority Queues.
+                Optimizing patient wait times based on severity and arrival order.
+            </p>
+
+            <div class="flex justify-center gap-4" style="margin-top: 2rem;">
+                <a href="doctor_auth.html" class="btn btn-primary">
+                    <ion-icon name="medkit-outline"></ion-icon> Doctor Portal
+                </a>
+                <a href="patient_auth.html" class="btn btn-outline"
+                    style="color: white; border-color: rgba(255,255,255,0.2);">
+                    <ion-icon name="person-outline"></ion-icon> Patient Portal
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="section-padding bg-contrast">
+        <div class="container">
+            <div class="grid grid-3 gap-8">
+                <div class="card">
+                    <div class="feature-icon"><ion-icon name="flash-outline"></ion-icon></div>
+                    <h3>Real-Time Priority</h3>
+                    <p>Patients are instantly ranked upon admission. Critical cases automatically jump to the front of
+                        the queue.</p>
+                </div>
+                <div class="card">
+                    <div class="feature-icon"><ion-icon name="analytics-outline"></ion-icon></div>
+                    <h3>Live Analytics</h3>
+                    <p>Monitor average wait times, doctor utilization, and critical case volume in real-time dashboards.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="feature-icon"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
+                    <h3>Role-Based Security</h3>
+                    <p>Separate secure portals for Medical Staff and Patients, ensuring data privacy and streamlined
+                        workflows.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Algorithm Explainer -->
+    <section id="algorithm" class="section-padding">
+        <div class="container">
+            <div class="grid grid-2 gap-8 items-center">
+                <div>
+                    <h2 style="line-height: 1.2;">Powered by <br>Max-Heap Architecture</h2>
+                    <p>
+                        We utilize a <strong>Binary Heap</strong> data structure to manage the priority queue.
+                        This ensures that the retrieval of the highest priority patient takes only <strong>O(log
+                            n)</strong> time,
+                        making the system efficient even with thousands of concurrent patients.
+                    </p>
+                    <ul
+                        style="list-style: none; color: var(--text-secondary); margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li style="display: flex; gap: 0.5rem; align-items: center;"><ion-icon name="checkmark-circle"
+                                style="color: var(--primary);"></ion-icon> Critical > High > Medium > Low</li>
+                        <li style="display: flex; gap: 0.5rem; align-items: center;"><ion-icon name="checkmark-circle"
+                                style="color: var(--primary);"></ion-icon> FCFS fallback for equal severity</li>
+                        <li style="display: flex; gap: 0.5rem; align-items: center;"><ion-icon name="checkmark-circle"
+                                style="color: var(--primary);"></ion-icon> O(1) Peek / O(log n) Extract</li>
+                    </ul>
+                </div>
+                <div class="card"
+                    style="background: linear-gradient(135deg, #1e293b, #0f172a); border-color: var(--primary);">
+                    <code
+                        style="display: block; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #94a3b8; line-height: 1.7;">
+                        <span style="color: #c084fc;">class</span> <span style="color: #60a5fa;">PriorityQueue</span> {<br>
+                        &nbsp;&nbsp;<span style="color: #c084fc;">constructor</span>() { ... }<br><br>
+                        &nbsp;&nbsp;<span style="color: #22c55e;">// Time: O(log n)</span><br>
+                        &nbsp;&nbsp;<span style="color: #facc15;">enqueue</span>(patient) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.heap.push(patient);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.bubbleUp();<br>
+                        &nbsp;&nbsp;}<br><br>
+                        &nbsp;&nbsp;<span style="color: #22c55e;">// Time: O(log n)</span><br>
+                        &nbsp;&nbsp;<span style="color: #facc15;">dequeue</span>() {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #c084fc;">return</span> this.heap.shift();<br>
+                        &nbsp;&nbsp;}<br>
+                        }
+                    </code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer
+        style="padding: 2rem 0; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+        <p>&copy; 2026 MediQueue Systems. Built for DAA Certification.</p>
+    </footer>
+
+    <!-- Glitter Effect -->
+    <script src="js/glitter.js"></script>
+</body>
+
+</html>

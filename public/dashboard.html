@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+
+    <nav class="card"
+        style="border-radius: 0; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="background: var(--primary); padding: 0.5rem; border-radius: 8px;">
+                <ion-icon name="medkit-outline" style="font-size: 1.5rem; color: white;"></ion-icon>
+            </div>
+            <h2>Emergency Command Center</h2>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span id="userDisplay" style="color: var(--text-muted);">Welcome, User</span>
+            <button onclick="logout()" class="btn" style="background: rgba(255,255,255,0.1);">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Algorithm Explanation (Hidden by default or Modal?) -->
+        <div
+            style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h4 style="color: var(--primary);">DAA Logic: Priority Queue (Max-Heap)</h4>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
+                Patients are scheduled using O(log n) Max-Heap.
+                Hierarchy: <span class="badge badge-Critical">Critical</span> >
+                <span class="badge badge-High">High</span> >
+                <span class="badge badge-Medium">Medium</span> >
+                <span class="badge badge-Low">Low</span>.
+                Within same severity, FCFS (Arrival Time) applies.
+            </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 stats-grid">
+            <div class="card stat-card">
+                <div class="stat-value" id="waitingCount">0</div>
+                <div class="stat-label">Patients Waiting</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value" id="criticalCount" style="color: var(--danger);">0</div>
+                <div class="stat-label">Critical Cases</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value" id="avgWaitTime">0m</div>
+                <div class="stat-label">Avg Wait Time</div>
+            </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr 2fr; gap: 2rem;">
+
+            <!-- Intake Form (Admin) -->
+            <div class="card" id="admissionPanel">
+                <h3><ion-icon name="person-add-outline"></ion-icon> Patient Admission</h3>
+                <form id="admitForm" style="margin-top: 1.5rem;">
+                    <label>Patient Name</label>
+                    <input type="text" id="pName" placeholder="John Doe" required>
+
+                    <label>Age</label>
+                    <input type="number" id="pAge" placeholder="30" required>
+
+                    <label>Severity Level</label>
+                    <select id="pSeverity" required>
+                        <option value="Low">Low (General Checkup)</option>
+                        <option value="Medium">Medium (High Fever, etc)</option>
+                        <option value="High">High (Broken Bone, etc)</option>
+                        <option value="Critical">Critical (Cardiac, Trauma)</option>
+                    </select>
+
+                    <button type="submit" class="btn" style="width: 100%;">Admit Patient</button>
+                </form>
+            </div>
+
+            <!-- Doctor Control (Doctor Only) -->
+            <div class="card" id="doctorPanel" style="display: none; height: fit-content; text-align: center;">
+                <h3><ion-icon name="stethoscope-outline"></ion-icon> Doctor Controls</h3>
+                <p style="color: var(--text-muted); margin: 1rem 0;">Ready to treat the next highest priority patient?
+                </p>
+                <button onclick="treatNextPatient()" class="btn btn-success" style="width: 100%; font-size: 1.2rem;">
+                    Call Next Patient
+                </button>
+                <div id="treatmentStatus" style="margin-top: 1rem; font-weight: bold; color: var(--primary);"></div>
+            </div>
+
+            <!-- Patient: Live Status Tracker (Visible only to Patient) -->
+            <div id="patientStatusTracker" class="card" style="display: none; margin-bottom: 2rem;">
+                <h3><ion-icon name="time-outline"></ion-icon> Your Status</h3>
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; position: relative;">
+                    <!-- Line -->
+                    <div
+                        style="position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.1); z-index: 0;">
+                    </div>
+
+                    <!-- Steps -->
+                    <div style="z-index: 1; text-align: center;">
+                        <div
+                            style="width: 32px; height: 32px; background: var(--success); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                            <ion-icon name="checkmark" style="color: white;"></ion-icon>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem;">Check-in</div>
+                    </div>
+                    <div style="z-index: 1; text-align: center;">
+                        <div id="step-waiting"
+                            style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px var(--primary);">
+                            <ion-icon name="hourglass" style="color: white;"></ion-icon>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--primary);">Waiting</div>
+                    </div>
+                    <div style="z-index: 1; text-align: center;">
+                        <div id="step-doctor"
+                            style="width: 32px; height: 32px; background: var(--surface-color); border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                            <ion-icon name="medkit" style="color: var(--text-muted);"></ion-icon>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Consultation</div>
+                    </div>
+                </div>
+                <div
+                    style="margin-top: 1.5rem; text-align: center; background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 8px;">
+                    Estimated Wait: <strong id="estWait" style="color: var(--primary);">Calculating...</strong>
+                </div>
+            </div>
+
+            <!-- Patient: Find a Doctor Panel -->
+            <div id="patientBookDoctor" class="card" style="display: none; margin-bottom: 2rem;">
+                <div class="flex justify-between items-center" style="margin-bottom: 1.5rem;">
+                    <h3><ion-icon name="search-outline"></ion-icon> Find & Book Specialist</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="searchDocName" placeholder="Search Doctor..."
+                            style="margin-bottom: 0; width: 200px;">
+                        <input type="text" id="searchDocLoc" placeholder="Location..."
+                            style="margin-bottom: 0; width: 150px;">
+                        <select id="searchDocSpec" style="margin-bottom: 0; width: 150px;">
+                            <option value="">All Specialties</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="Orthopedics">Orthopedics</option>
+                            <option value="Gastroenterology">Gastroenterology</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="General Surgery">General Surgery</option>
+                            <option value="Emergency Medicine">Emergency Medicine</option>
+                        </select>
+                        <button onclick="filterDoctors()" class="btn btn-primary">Filter</button>
+                    </div>
+                </div>
+
+                <div id="doctorDirectoryList" class="grid grid-3 gap-4">
+                    <!-- Dynamic Doctor Cards -->
+                    <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
+                        Loading specialists...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor: Next Patient Vitals (Visible only to Doctor) -->
+            <div id="doctorVitalsPanel" class="card"
+                style="display: none; margin-bottom: 2rem; border-color: var(--accent);">
+                <div class="flex justify-between items-center">
+                    <h3><ion-icon name="pulse" style="color: var(--danger);"></ion-icon> Next Patient Vitals</h3>
+                    <span class="badge" style="background: rgba(255,255,255,0.1);">Live Telemetry</span>
+                </div>
+                <div class="grid grid-3 gap-4" style="margin-top: 1rem;">
+                    <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">HEART RATE</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--danger);"><span
+                                id="vitals-bpm">--</span> <span style="font-size: 0.8rem;">BPM</span></div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">BLOOD PRESSURE</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning);"><span
+                                id="vitals-bp">--/--</span></div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">O2 SATURATION</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);"><span
+                                id="vitals-spo2">--</span>%</div>
+                    </div>
+                </div>
+                <div id="nextPatientPreview" style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    Prepare for patient...
+                </div>
+            </div>
+
+            <!-- Live Queue -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3><ion-icon name="list-outline"></ion-icon> Live Priority Queue</h3>
+                    <span class="badge" style="background: var(--info); color: white;">Live Updates</span>
+                </div>
+
+                <div id="queueList" class="patient-list">
+                    <!-- Dynamic List -->
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        No patients waiting.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

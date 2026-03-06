@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Check-in</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="card login-box" style="width: 450px;">
+            <h2 style="color: var(--success);">Patient Portal</h2>
+
+            <!-- Tabs -->
+            <div class="flex" style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button onclick="switchTab('signup')" id="btn-signup" class="tab-btn active"
+                    style="flex: 1; background: transparent; border: none; padding: 1rem; color: white; cursor: pointer; border-bottom: 2px solid var(--success);">New
+                    Patient (Check-in)</button>
+                <button onclick="switchTab('login')" id="btn-login" class="tab-btn"
+                    style="flex: 1; background: transparent; border: none; padding: 1rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;">Existing
+                    Status</button>
+            </div>
+
+            <!-- Signup Form (Admission) -->
+            <form id="signupForm">
+                <p style="text-align: left; color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">Please
+                    enter your details to join the queue.</p>
+
+                <input type="text" id="p-name" placeholder="Full Name" required>
+                <input type="number" id="p-age" placeholder="Age" required>
+
+                <label style="display: block; text-align: left; margin-bottom: 0.5rem; font-size: 0.9rem;">Chief
+                    Complaint (Symptoms)</label>
+                <select id="p-symptoms" required style="margin-bottom: 1.5rem;">
+                    <option value="" disabled selected>Select Symptoms...</option>
+                    <option value="Critical">Chest Pain / Difficulty Breathing (Critical)</option>
+                    <option value="Critical">Severe Head Trauma / Unconscious (Critical)</option>
+                    <option value="High">Broken Bone / Severe Bleeding (High)</option>
+                    <option value="High">Severe Abdominal Pain (High)</option>
+                    <option value="Medium">High Fever / Vomiting (Medium)</option>
+                    <option value="Medium">Migraine / Dizziness (Medium)</option>
+                    <option value="Low">Cough / Cold / Sore Throat (Low)</option>
+                    <option value="Low">General Checkup / Refill (Low)</option>
+                </select>
+
+                <button type="submit" class="btn" style="width: 100%; background: var(--success);">Check In Now</button>
+            </form>
+
+            <!-- Login Form -->
+            <form id="loginForm" style="display: none;">
+                <p style="text-align: left; color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">Enter
+                    your name to check your status in line.</p>
+                <input type="text" id="l-name" placeholder="Your Full Name" required>
+                <button type="submit" class="btn" style="width: 100%; background: var(--success);">Check Status</button>
+            </form>
+
+            <a href="index.html"
+                style="display: block; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.8rem;">&larr; Back to
+                Home</a>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const btnLogin = document.getElementById('btn-login');
+            const btnSignup = document.getElementById('btn-signup');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                btnLogin.style.borderBottomColor = 'var(--success)';
+                btnLogin.style.color = 'white';
+                btnSignup.style.borderBottomColor = 'transparent';
+                btnSignup.style.color = 'var(--text-muted)';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                btnSignup.style.borderBottomColor = 'var(--success)';
+                btnSignup.style.color = 'white';
+                btnLogin.style.borderBottomColor = 'transparent';
+                btnLogin.style.color = 'var(--text-muted)';
+            }
+        }
+
+        // Handle Patient Check-in (Signup)
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('p-name').value;
+            const age = document.getElementById('p-age').value;
+            const severity = document.getElementById('p-symptoms').value; // Matches Server Severity
+
+            // In a real app we would POST to /api/admit
+            // For Demo with Broken Backend, we simulate admission via App.js logic 
+            // BUT we can't easily push to app.js variable from here.
+            // So we'll store a "Pending Admission" in localStorage to be picked up by dashboard.
+
+            const pendingPatient = {
+                name, age, severity, arrivalTime: Date.now(), isSelfCheckIn: true
+            };
+
+            localStorage.setItem('user', JSON.stringify({ name: name, role: 'patient' }));
+            localStorage.setItem('pendingAdmission', JSON.stringify(pendingPatient));
+
+            window.location.href = 'dashboard.html';
+        });
+
+        // Handle Login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('l-name').value;
+
+            localStorage.setItem('user', JSON.stringify({ name: name, role: 'patient' }));
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+    <script src="js/glitter.js"></script>
+</body>
+
+</html>
